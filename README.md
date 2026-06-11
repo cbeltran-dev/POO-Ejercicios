@@ -1013,4 +1013,3 @@ Antes de escribir código, dibuja en papel tus clases: nombres, atributos, méto
 
 **No hay solución incluida.** Cuando lo termines, envíamelo y lo revisamos juntos. No importa si no compila a la primera — los errores son parte del ejercicio.
 
-> 💡 Pista: fíjate cuánto se parece esto al sistema de biblioteca de clase (`LibraryItem` → `Book`/`DVD`, `Library` con sus `ArrayList`). Es la misma estructura con otro disfraz. Si la puedes reconstruir con tu propio tema, ya entendiste POO.
