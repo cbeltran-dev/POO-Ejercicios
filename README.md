@@ -117,6 +117,8 @@ public class Main {
 
 > `p1` y `p2` apuntan a dos objetos distintos en memoria. Cambiar uno no afecta al otro.
 
+> 💡 Cada `new` reserva un espacio **nuevo** en memoria. La variable (`p1`) no contiene el objeto: contiene la *dirección* donde vive. Por eso si hicieras `Producto p3 = p1;` (sin `new`), `p3` y `p1` apuntarían al **mismo** objeto, y cambiar el precio desde uno se vería desde el otro. Esa diferencia — copiar la referencia vs crear un objeto nuevo — reaparece en el Ejercicio 14.
+
 </details>
 
 ---
@@ -170,6 +172,8 @@ public class Main {
 "Blinding Lights" - The Weeknd (200s)
 "Shape of You" - Ed Sheeran (234s)
 ```
+
+> 💡 `this.titulo = titulo` significa: "el atributo `titulo` **de este objeto** = el parámetro `titulo` que llegó". Sin `this`, Java pensaría que hablas dos veces del parámetro y el atributo quedaría sin asignar. `this` siempre apunta al objeto actual.
 
 </details>
 
@@ -228,6 +232,8 @@ Toyota
 ```
 
 > Java asigna `null` a los String y `0` a los int cuando no se inicializan.
+
+> ⚠️ Detalle importante: si **no** escribes ningún constructor, Java te regala uno vacío automáticamente. Pero apenas escribes uno con parámetros, **el regalo desaparece** — si todavía quieres poder hacer `new Vehiculo()` sin argumentos, tienes que escribir el constructor vacío tú mismo (como en este ejercicio).
 
 </details>
 
@@ -294,6 +300,8 @@ Queen
 354
 ```
 
+> 💡 ¿Por qué `duracion` no tiene setter? Porque encapsular no es solo "poner private y generar todo": es **decidir qué se puede cambiar y qué no**. Una canción puede cambiar de título (remasterización), pero su duración no debería cambiar después de creada. Tú eliges las puertas que abres.
+
 </details>
 
 ---
@@ -358,6 +366,8 @@ public class Main {
 Nuevo saldo: S/700.0
 Titular: Ana García | Saldo: S/700.0
 ```
+
+> 💡 Fíjate que `saldo` **no tiene setter**, y aun así puedes modificarlo — pero solo a través de `depositar()`. Esa es la idea central del encapsulamiento: en vez de dejar que cualquiera haga `cuenta.saldo = -9999`, la clase ofrece operaciones controladas. Más adelante podrías agregar validación dentro de `depositar()` (rechazar montos negativos) sin tocar el código que la usa.
 
 </details>
 
@@ -461,6 +471,10 @@ Precio: S/2500.0
 RAM: 16GB
 ```
 
+> 💡 Dos detalles clave aquí:
+> - `super(marca, precio)` llama al constructor del padre y **debe ser la primera línea** del constructor hijo. El hijo no inicializa `marca` y `precio` por su cuenta: le delega esa parte al padre, que es quien conoce esos atributos.
+> - `@Override` no es decorativo: le pide al compilador que **verifique** que de verdad estás sobreescribiendo un método del padre. Si te equivocas en el nombre (`mostrarinfo()` con minúscula), sin la anotación Java crearía un método nuevo en silencio; con ella, te marca el error de inmediato.
+
 </details>
 
 ---
@@ -539,6 +553,8 @@ Memoria: 256GB
 ```
 
 > Java mira el objeto real en memoria (`Celular`, `Laptop`), no el tipo de la variable (`Dispositivo`). Por eso cada uno ejecuta su propia versión de `mostrarInfo()`.
+
+> ⚠️ Pero ojo con el lado inverso: como la variable `d1` es de tipo `Dispositivo`, **solo puedes llamar lo que `Dispositivo` declara**. `d1.mostrarInfo()` funciona, pero algo exclusivo de `Celular` (como un hipotético `getMemoriaGB()`) daría error de compilación, aunque el objeto real sea un celular. Regla mental: *el tipo de la variable decide qué puedes llamar; el tipo del objeto decide qué versión se ejecuta.*
 
 </details>
 
@@ -656,6 +672,8 @@ Precio: S/1800.0
 Tiene lápiz: true
 ```
 
+> 💡 ¿Para qué sirve que no se pueda instanciar? Piénsalo así: en el mundo real nadie compra "un dispositivo" a secas — compra un celular, una laptop, una tablet. `Dispositivo` es un **concepto**, no una cosa concreta. Y al declarar `mostrarInfo()` como abstracto, obligas a que **toda** subclase futura lo implemente: el que agregue `Smartwatch` mañana no podrá olvidarse. La clase abstracta es un contrato a medias: aporta código común (`encender()`, getters) y exige el resto.
+
 </details>
 
 ---
@@ -716,6 +734,8 @@ Samsung conectado al WiFi
 ```
 
 > Desde una variable de tipo `Conectable` solo puedes llamar a los métodos definidos en esa interfaz.
+
+> 💡 ¿Cuándo interfaz y cuándo clase abstracta? La clase abstracta dice **qué ES** algo (`Celular` ES un `Dispositivo`) y solo se puede heredar de una. La interfaz dice **qué SABE HACER** (`Celular` sabe conectarse) y una clase puede implementar varias. Por eso `Tablet` puede ser `Dispositivo` sin ser `Conectable`: ser y saber hacer son cosas distintas.
 
 </details>
 
@@ -800,6 +820,8 @@ Tiene lápiz: true
 
 > La lista acepta los tres porque `Celular`, `Laptop` y `Tablet` **son** `Dispositivo` (herencia). Y al recorrerla, cada objeto ejecuta **su propia** versión de `mostrarInfo()` (polimorfismo). Este ejercicio junta los dos conceptos: la lista del padre + el comportamiento del hijo.
 
+> 💡 Esto que hace `TiendaDispositivos` se llama **composición**: la tienda **TIENE** dispositivos (no ES un dispositivo). Herencia = "es un", composición = "tiene un". Los sistemas reales usan ambas, como `Library` con sus `ArrayList`. Y usamos `ArrayList` en vez de un array (`Dispositivo[]`) porque crece solo: no necesitas decidir de antemano cuántos dispositivos tendrá la tienda.
+
 </details>
 
 ---
@@ -861,6 +883,8 @@ null
 ```
 
 > **No es una copia: es el mismo objeto.** El método devuelve una *referencia* al objeto que vive en la lista. Si lo modificas a través de `encontrado`, el cambio se ve también desde la tienda, porque ambos apuntan al mismo lugar en memoria. Y por eso `null` es peligroso: es una referencia que no apunta a nada — llamarle un método lanza `NullPointerException`. (Esto es exactamente el problema que `Optional` resuelve en el ejemplo de la biblioteca.)
+
+> ⚠️ Detalle que causa muchos bugs: para comparar Strings usamos `.equals(marca)`, **nunca** `==`. El `==` compara si las dos referencias apuntan al mismo objeto en memoria; `.equals()` compara el contenido del texto. Con `==` la búsqueda podría fallar aunque las marcas se escriban igual.
 
 </details>
 
@@ -1012,4 +1036,3 @@ Tu sistema debe usar, como mínimo:
 Antes de escribir código, dibuja en papel tus clases: nombres, atributos, métodos y flechas de herencia. Si el diagrama no te queda claro, el código tampoco va a quedar.
 
 **No hay solución incluida.** Cuando lo termines, envíamelo y lo revisamos juntos. No importa si no compila a la primera — los errores son parte del ejercicio.
-
