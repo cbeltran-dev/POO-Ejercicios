@@ -1035,4 +1035,4 @@ Tu sistema debe usar, como mínimo:
 
 Antes de escribir código, dibuja en papel tus clases: nombres, atributos, métodos y flechas de herencia. Si el diagrama no te queda claro, el código tampoco va a quedar.
 
-**No hay solución incluida.** Cuando lo termines, envíamelo y lo revisamos juntos. No importa si no compila a la primera — los errores son parte del ejercicio.
+
