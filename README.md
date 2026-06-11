@@ -17,6 +17,8 @@ En el `Main`:
 2. Asigna valores distintos a cada uno directamente.
 3. Imprime los tres atributos de cada película.
 
+> ⚠️ Nota: acceder a los atributos directamente (`p1.titulo = ...`) **no es buena práctica** en código real — lo hacemos aquí solo para entender el problema que el encapsulamiento (Bloque 3) resuelve.
+
 <details>
 <summary>🔍 Ver solución</summary>
 
@@ -719,9 +721,154 @@ Samsung conectado al WiFi
 
 ---
 
+## BLOQUE 7 · Composición y colecciones
+
+### Ejercicio 13 — Una clase que agrupa objetos
+
+Crea una clase `TiendaDispositivos` que use la jerarquía `Dispositivo` / `Celular` / `Laptop` / `Tablet` de los bloques anteriores.
+
+La clase debe tener:
+- Un atributo privado `dispositivos` de tipo `ArrayList<Dispositivo>`, inicializado en el constructor.
+- Un método `agregar(Dispositivo d)` que añada un dispositivo a la lista.
+- Un método `listarTodos()` que recorra la lista con un `for` y llame a `mostrarInfo()` en cada elemento.
+
+En el `Main`:
+1. Crea una tienda.
+2. Agrega un `Celular`, una `Laptop` y una `Tablet` (¡los tres entran en la misma lista!).
+3. Llama a `listarTodos()`.
+
+¿Por qué una lista de tipo `Dispositivo` puede guardar celulares, laptops y tablets a la vez? ¿Qué versión de `mostrarInfo()` se ejecuta para cada uno?
+
+<details>
+<summary>🔍 Ver solución</summary>
+
+```java
+// TiendaDispositivos.java
+import java.util.ArrayList;
+
+public class TiendaDispositivos {
+    private ArrayList<Dispositivo> dispositivos;
+
+    public TiendaDispositivos() {
+        this.dispositivos = new ArrayList<>();
+    }
+
+    public void agregar(Dispositivo d) {
+        dispositivos.add(d);
+    }
+
+    public void listarTodos() {
+        for (int i = 0; i < dispositivos.size(); i++) {
+            dispositivos.get(i).mostrarInfo();
+            System.out.println("---");
+        }
+    }
+}
+
+// Main.java
+public class Main {
+    public static void main(String[] args) {
+        TiendaDispositivos tienda = new TiendaDispositivos();
+
+        tienda.agregar(new Celular("Samsung", 1200.0, 128));
+        tienda.agregar(new Laptop("Lenovo", 2500.0, 16));
+        tienda.agregar(new Tablet("Apple", 1800.0, true));
+
+        tienda.listarTodos();
+    }
+}
+```
+
+```
+// Salida en consola:
+=== CELULAR ===
+Marca: Samsung
+Precio: S/1200.0
+Memoria: 128GB
+---
+=== LAPTOP ===
+Marca: Lenovo
+Precio: S/2500.0
+RAM: 16GB
+---
+=== TABLET ===
+Marca: Apple
+Precio: S/1800.0
+Tiene lápiz: true
+---
+```
+
+> La lista acepta los tres porque `Celular`, `Laptop` y `Tablet` **son** `Dispositivo` (herencia). Y al recorrerla, cada objeto ejecuta **su propia** versión de `mostrarInfo()` (polimorfismo). Este ejercicio junta los dos conceptos: la lista del padre + el comportamiento del hijo.
+
+</details>
+
+---
+
+### Ejercicio 14 — Buscar y modificar: el poder de las referencias
+
+Agrega a `TiendaDispositivos` un método:
+
+```java
+public Dispositivo buscarPorMarca(String marca)
+```
+
+que recorra la lista y devuelva el primer dispositivo cuya marca coincida. Si no encuentra ninguno, devuelve `null`.
+
+En el `Main`:
+1. Crea la tienda y agrega los tres dispositivos del ejercicio anterior.
+2. Busca el dispositivo de marca "Samsung" y guárdalo en una variable `encontrado`.
+3. Llama a `encontrado.encender()`.
+4. Busca una marca que no existe — ¿qué devuelve? ¿Qué pasa si llamas a `encender()` sobre ese resultado?
+
+**Pregunta clave:** el objeto que devolvió `buscarPorMarca()`, ¿es una copia del que está en la lista, o es el mismo?
+
+<details>
+<summary>🔍 Ver solución</summary>
+
+```java
+// En TiendaDispositivos.java — agregar:
+public Dispositivo buscarPorMarca(String marca) {
+    for (int i = 0; i < dispositivos.size(); i++) {
+        if (dispositivos.get(i).getMarca().equals(marca)) {
+            return dispositivos.get(i);
+        }
+    }
+    return null;
+}
+
+// Main.java
+public class Main {
+    public static void main(String[] args) {
+        TiendaDispositivos tienda = new TiendaDispositivos();
+        tienda.agregar(new Celular("Samsung", 1200.0, 128));
+        tienda.agregar(new Laptop("Lenovo", 2500.0, 16));
+        tienda.agregar(new Tablet("Apple", 1800.0, true));
+
+        Dispositivo encontrado = tienda.buscarPorMarca("Samsung");
+        encontrado.encender();
+
+        Dispositivo fantasma = tienda.buscarPorMarca("Nokia");
+        System.out.println(fantasma);  // null
+        // fantasma.encender();  ← NullPointerException si lo descomentas
+    }
+}
+```
+
+```
+// Salida en consola:
+Samsung encendido
+null
+```
+
+> **No es una copia: es el mismo objeto.** El método devuelve una *referencia* al objeto que vive en la lista. Si lo modificas a través de `encontrado`, el cambio se ve también desde la tienda, porque ambos apuntan al mismo lugar en memoria. Y por eso `null` es peligroso: es una referencia que no apunta a nada — llamarle un método lanza `NullPointerException`. (Esto es exactamente el problema que `Optional` resuelve en el ejemplo de la biblioteca.)
+
+</details>
+
+---
+
 ## Ejercicio integrador
 
-### Ejercicio 13 — Sistema de música
+### Ejercicio 15 — Sistema de música
 
 Construye desde cero un pequeño sistema de música con las siguientes clases:
 
@@ -840,3 +987,30 @@ Reproduciendo: Shape of You - Ed Sheeran (234s)
 ```
 
 </details>
+
+---
+
+## Ejercicio final · Diseña tú el sistema
+
+### Ejercicio 16 — Sin plano
+
+Hasta ahora cada ejercicio te dijo qué clases crear y con qué atributos. Esta vez **tú decides todo**.
+
+Elige uno de estos dominios (o propón otro):
+- 🐶 Veterinaria
+- 🎬 Cine
+- 🏋️ Gimnasio
+- 🍔 Restaurante
+
+Tu sistema debe usar, como mínimo:
+1. Una **clase abstracta** padre con al menos un método abstracto.
+2. **Dos subclases** que la extiendan, cada una con un atributo propio y su propia versión del método abstracto.
+3. Una **interfaz** implementada por al menos una de las subclases.
+4. Una **clase agrupadora** (como `TiendaDispositivos`) con un `ArrayList` del tipo padre, y métodos para agregar, listar y buscar.
+5. Un `Main` que demuestre todo funcionando, incluyendo al menos una variable de tipo padre apuntando a un objeto hijo.
+
+Antes de escribir código, dibuja en papel tus clases: nombres, atributos, métodos y flechas de herencia. Si el diagrama no te queda claro, el código tampoco va a quedar.
+
+**No hay solución incluida.** Cuando lo termines, envíamelo y lo revisamos juntos. No importa si no compila a la primera — los errores son parte del ejercicio.
+
+> 💡 Pista: fíjate cuánto se parece esto al sistema de biblioteca de clase (`LibraryItem` → `Book`/`DVD`, `Library` con sus `ArrayList`). Es la misma estructura con otro disfraz. Si la puedes reconstruir con tu propio tema, ya entendiste POO.
